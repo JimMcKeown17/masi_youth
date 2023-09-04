@@ -1,6 +1,7 @@
 import pandas as pd
 import re
 from datetime import datetime
+import numpy as np
 
 def update_errors(df, condition, error_message):
     df.loc[condition, 'error_flag'] = 1
@@ -45,9 +46,10 @@ def check_employment_status(df):
 
 def check_age(df):
     now = pd.Timestamp(datetime.now())
-    df['Age'] = (now - df['DOB']).astype('<m8[Y]')
+    df['Age'] = ((now - df['DOB']) / np.timedelta64(1, 'Y')).astype(int)
     age_invalid = (df['Age'] > 35) | (df['Age'] < 18)
     update_errors(df, age_invalid, 'Age is either over 35 or under 18')
+
 
 def check_end_date(df):
     end_date_filled = df['End Date'].notna()
@@ -64,12 +66,12 @@ def check_rsa_id_number(df):
     update_errors(df, invalid_rsa_id, 'RSA ID Number does not contain exactly 13 digits')
 
 def check_data_integrity(df):
-    required_cols = ['Employee Number', 'Employment Status', 'Mentor', 'Gender', 'Race',
+    required_cols = ['Employee ID', 'Employment Status', 'Mentor', 'Gender', 'Race',
                  'Site Placement', 'First Names', 'Last Name', 'Job Title',
                  'Start Date', 'Attachment: ID Document', 'Attachment: Bank Details',
                  'Attachment: MOU/Contract', 'Attachment: Info Sheet',
                  'Attachment: SARS Notice of registration', 'Cell Phone Number', 'Email', 'Income Tax Number']
-    duplicate_cols = ['Employee Number', 'Account number', 'RSA ID Number']
+    duplicate_cols = ['Employee ID', 'Account number', 'RSA ID Number']
     date_cols = ['Start Date', 'End Date', 'DOB']
     contains_checks = {'Email': '@'}
 
@@ -98,7 +100,7 @@ def save_errors(df, filename):
     errors.to_csv(filename, index=False)
 
 def main():
-    df = load_data('20230725 - Combined Youth Data-All Yeboneers.csv')
+    df = load_data('20230904 - Combined Youth Data.csv')
     df = check_data_integrity(df)
     save_errors(df, 'youth_errors.csv')
 
