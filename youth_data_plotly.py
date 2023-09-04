@@ -24,7 +24,7 @@ race_counts = youth['Race'].value_counts().reset_index()
 race_counts.columns = ['Race', 'Count']
 fig_race = px.pie(race_counts, values='Count', names='Race', title='Breakdown by Race')
 
-# Count the number of youth per race
+# Count the number of youth per gender
 gender_counts = youth['Gender'].value_counts().reset_index()
 gender_counts.columns = ['Gender', 'Count']
 fig_gender = px.pie(gender_counts, values='Count', names='Gender', title='Breakdown by Gender')
